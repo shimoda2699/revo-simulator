@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HIGASHIカード リボ払いシミュレーター</title>
+<meta name="description" content="架空のHIGASHIクレジットカード(長崎東ファイナンス発行)で日用品や大きな買い物をリボ払いした場合の残高・手数料の推移を試せる、家庭科の授業用シミュレーター">
+<link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="page">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="hero-text">
+      <span class="badge">教材用シミュレーション ・ 架空の企業です</span>
+      <h1>HIGASHIカード<br>リボ払いシミュレーター</h1>
+      <p class="lead">長崎東ファイナンス発行「HIGASHIクレジットカード」で買い物をし、支払いをリボ払いにしたら残高と手数料(利息)はどう動くか。買い物の内容と返済条件を動かして確かめてみましょう。</p>
+      <p class="fine">※「長崎東ファイナンス」「HIGASHIカード」は本教材のために作成した架空の会社・カードです。数値は学習用の簡易モデルによるシミュレーションであり、実在のカード会社の商品性を示すものではありません。</p>
+    </div>
+    <div class="card-wrap">
+      <img id="cardImg" class="card-img" src="images/card-sunrise.svg" alt="架空のHIGASHIクレジットカードのイメージ（サンライズカラー）">
+      <div class="skin-row" role="group" aria-label="カードの色を選ぶ">
+        <span class="skin-label">カードの色</span>
+        <button type="button" class="skin-btn skin-sunrise" data-skin="sunrise" aria-pressed="true" aria-label="サンライズカラー"></button>
+        <button type="button" class="skin-btn skin-ocean" data-skin="ocean" aria-pressed="false" aria-label="オーシャンカラー"></button>
+        <button type="button" class="skin-btn skin-sakura" data-skin="sakura" aria-pressed="false" aria-label="サクラカラー"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONTROLS ============ -->
+  <section>
+    <div class="section-head">
+      <span class="step">STEP 1</span>
+      <h2>買い物の内容を決める</h2>
+      <p class="muted" style="font-size:13.5px;">HIGASHIカードでどんな買い物をするかを設定します。</p>
+    </div>
+    <div class="controls-grid">
+
+      <div class="panel">
+        <div class="control" style="border-top:none;">
+          <div class="control-label">
+            <img class="ic" src="images/icon-groceries.svg" alt="">
+            日用品・食料品（毎月）
+            <span class="control-value"><span id="valEssential" class="num">¥30,000</span><small>/月</small></span>
+          </div>
+          <input type="range" id="essential" min="10000" max="80000" step="1000" value="30000" aria-describedby="essentialCaption">
+          <div class="range-caption" id="essentialCaption"><span>¥10,000</span><span>毎月の食費・雑費など</span><span>¥80,000</span></div>
+        </div>
+
+        <div class="control">
+          <div class="control-label">
+            <img class="ic" src="images/icon-bigpurchase.svg" alt="">
+            大きな買い物（回数／年）
+          </div>
+          <div class="chip-row" id="bigFreqRow" role="group" aria-label="大きな買い物の年間回数"></div>
+          <p class="range-caption" style="justify-content:flex-start; gap:6px;"><span>例：ブランドバッグ、旅行など1回数万円の買い物</span></p>
+        </div>
+
+        <div class="control">
+          <div class="control-label">
+            <img class="ic" src="images/icon-compare.svg" alt="">
+            1回あたりの平均額
+            <span class="control-value"><span id="valBigAmount" class="num">¥100,000</span></span>
+          </div>
+          <input type="range" id="bigAmount" min="30000" max="300000" step="5000" value="100000" aria-describedby="bigAmountCaption">
+          <div class="range-caption" id="bigAmountCaption"><span>¥30,000</span><span>¥300,000</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="control" style="border-top:none;">
+          <div class="control-label">
+            <img class="ic" src="images/icon-payment.svg" alt="">
+            毎月の返済額（元利定額方式）
+            <span class="control-value"><span id="valPayment" class="num">¥10,000</span><small>/月</small></span>
+          </div>
+          <input type="range" id="payment" min="5000" max="50000" step="1000" value="10000" aria-describedby="paymentCaption">
+          <div class="range-caption" id="paymentCaption"><span>¥5,000</span><span>毎月ほぼ一定額を支払う方式</span><span>¥50,000</span></div>
+        </div>
+
+        <div class="control">
+          <div class="control-label">
+            <img class="ic" src="images/icon-percent.svg" alt="">
+            実質年率（手数料率）
+            <span class="control-value"><span id="valApr" class="num">15.0</span><small>%／年</small></span>
+          </div>
+          <input type="range" id="apr" min="15" max="20" step="0.1" value="15">
+          <div class="range-caption"><span>年15.0%</span><span>年20.0%</span></div>
+
+          <div class="legal-box">
+            <strong style="color:var(--ink-900);">利息制限法による上限金利の目安</strong>
+            <table id="legalTable">
+              <tr data-tier="0"><td>元本 10万円未満</td><td class="cap">年20.0%</td></tr>
+              <tr data-tier="1"><td>元本 10万円以上 100万円未満</td><td class="cap">年18.0%</td></tr>
+              <tr data-tier="2"><td>元本 100万円以上</td><td class="cap">年15.0%</td></tr>
+            </table>
+            <div class="legal-check" id="legalCheck"></div>
+          </div>
+        </div>
+
+        <div class="control">
+          <div class="control-label">
+            <img class="ic" src="images/icon-calendar.svg" alt="">
+            シミュレーション期間
+          </div>
+          <div class="chip-row" id="yearsRow" role="group" aria-label="シミュレーション期間"></div>
+          <p class="range-caption" style="justify-content:flex-start;"><span>1年間、通常どおり買い物を続けたあと、期間の終わりまでを表示します</span></p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ WARNING ============ -->
+  <section>
+    <div class="warning" id="spiralWarning">
+      <img class="ic" src="images/icon-warning.svg" alt="">
+      <div>
+        <strong>毎月の返済額が手数料(利息)を下回っています</strong>
+        <p>1年後の残高（<span id="warnBalance" class="num">¥0</span>）にかかる毎月の手数料は約<span id="warnInterest" class="num">¥0</span>です。毎月の返済額<span id="warnPayment" class="num">¥0</span>がこれ以下だと、<b>新しい買い物を一切やめても残高は減っていきません。</b>元利定額方式のリボ払いで起きる「元金が減らない」問題です。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <section>
+    <div class="section-head">
+      <span class="step">STEP 2</span>
+      <h2>シミュレーション結果</h2>
+      <p class="muted" style="font-size:13.5px;">1年間買い物を続けたあと、「そのまま続けた場合」と「今すぐ新規の買い物をやめた場合」を比べます。</p>
+    </div>
+
+    <div class="tiles" style="margin-bottom:18px;">
+      <div class="tile c-neutral">
+        <span class="tlabel">1年後の残高</span>
+        <span class="tvalue num" id="tileForkBalance">¥0</span>
+        <span class="tsub">日用品・食料品と大きな買い物をカードで払い続けた場合の、利用開始1年後の残高です。</span>
+      </div>
+      <div class="tile c-danger">
+        <span class="tlabel">このまま買い物を続けた場合</span>
+        <span class="tvalue num" id="tileContinueEnd">¥0</span>
+        <span class="tsub" id="tileContinueSub">期間終了時点の残高</span>
+      </div>
+      <div class="tile c-safe">
+        <span class="tlabel">今すぐ新規の買い物をやめた場合</span>
+        <span class="tvalue num" id="tileStopEnd">¥0</span>
+        <span class="tsub" id="tileStopSub">完済までにかかる期間</span>
+      </div>
+    </div>
+
+    <div class="compare-panel">
+      <img class="ic" src="images/icon-compare.svg" alt="">
+      <div>
+        <strong>同じ買い物を、もし一括払い（現金一括）にしていたら</strong>
+        <p>手数料(利息)はかからないので支払総額は買い物代金そのまま。リボ払いにしたことで、<b class="num" id="extraInterest" style="color:var(--danger-ink);">¥0</b> を余分に支払う計算になります。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MONEY FLOW ============ -->
+  <section class="panel">
+    <div class="section-head" style="margin-bottom:10px;">
+      <h2 style="font-size:17px;">お金の流れ：合計するといくら？</h2>
+      <p class="muted" style="font-size:13px;">「買い物で使った金額」と「実際に支払った金額」の差が、そのまま残高(繰り越し)になります。</p>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="flow-table" id="flowTable">
+        <thead>
+          <tr>
+            <th></th>
+            <th class="col-neutral">1年後<br><span class="th-sub">（利用開始から）</span></th>
+            <th class="col-danger">そのまま続けた場合<br><span class="th-sub" id="flowYearsLabelCont"></span></th>
+            <th class="col-safe">今すぐやめた場合<br><span class="th-sub" id="flowYearsLabelStop"></span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>買い物で使った金額（利用合計）</td><td class="num" id="flowUsed1"></td><td class="num" id="flowUsedCont"></td><td class="num" id="flowUsedStop"></td></tr>
+          <tr><td>手数料（利息）の合計</td><td class="num" id="flowFee1"></td><td class="num" id="flowFeeCont"></td><td class="num" id="flowFeeStop"></td></tr>
+          <tr><td>実際に支払った金額（返済合計）</td><td class="num" id="flowPaid1"></td><td class="num" id="flowPaidCont"></td><td class="num" id="flowPaidStop"></td></tr>
+          <tr class="flow-total"><td>差額＝そのときの残高（繰り越し）</td><td class="num" id="flowDiff1"></td><td class="num" id="flowDiffCont"></td><td class="num" id="flowDiffStop"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ CHART ============ -->
+  <section class="panel chart-panel">
+    <div class="section-head" style="margin-bottom:6px;">
+      <h2 style="font-size:17px;">残高の推移</h2>
+    </div>
+    <div class="legend">
+      <span class="item"><span class="sw" style="background:var(--ink-300);"></span>これまでの残高推移（共通）</span>
+      <span class="item"><span class="sw" style="background:var(--danger);"></span>そのまま買い物を続けた場合</span>
+      <span class="item"><span class="sw" style="background:var(--safe);"></span>今すぐ新規の買い物をやめた場合</span>
+    </div>
+    <div class="chart-holder" id="chartHolder">
+      <svg class="chart" id="chartSvg" viewBox="0 0 720 320" role="img" aria-label="月ごとの残高の推移グラフ">
+        <g id="gridLayer"></g>
+        <g id="areaLayer"></g>
+        <g id="lineLayer"></g>
+        <line id="forkLine" class="fork-line" x1="0" y1="16" x2="0" y2="288"/>
+        <text id="forkTag" class="fork-tag" x="0" y="12"></text>
+        <g id="axisLayer"></g>
+        <line id="hoverLine" class="hover-line" x1="0" y1="16" x2="0" y2="288"/>
+        <circle id="hoverDotBase" class="hover-dot" r="3.5" fill="var(--ink-500)"/>
+        <circle id="hoverDotC" class="hover-dot" r="3.5" fill="var(--danger)"/>
+        <circle id="hoverDotS" class="hover-dot" r="3.5" fill="var(--safe)"/>
+        <rect id="hoverCapture" x="0" y="0" width="720" height="320" fill="transparent"/>
+      </svg>
+      <div class="tooltip" id="tooltip"></div>
+    </div>
+
+    <details class="table-toggle">
+      <summary>データを表で見る</summary>
+      <div style="overflow-x:auto;">
+        <table class="data-table" id="dataTable">
+          <thead><tr><th>経過</th><th>そのまま続けた場合</th><th>今すぐやめた場合</th></tr></thead>
+          <tbody id="dataTableBody"></tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <footer class="note">
+    <p><strong>この教材について：</strong> カード・アイコンの画像はすべて images フォルダ内のオリジナルSVGファイルで、外部サイトからの画像借用は行っていません。「長崎東ファイナンス」「HIGASHIカード」は授業用の架空の名称です。計算方式は多くのカード会社が採用する「元利定額方式」（毎月の返済額を一定にし、手数料[利息]を先に差し引いてから元金に充当する方式）を、年率を月割り（年率÷12）にして簡略化したモデルです。実際の請求は日割り計算・締め日/支払日の扱いが加わるため、金額は目安としてご利用ください。利息制限法の上限金利（元本10万円未満：年20.0%、10万円以上100万円未満：年18.0%、100万円以上：年15.0%）は貸金の上限として広く紹介される目安であり、実際のカード会社のリボ払い手数料率（多くは年15.0〜18.0%程度）は契約時点の条件で決まります。</p>
+  </footer>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
