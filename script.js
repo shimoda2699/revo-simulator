@@ -7,9 +7,11 @@
 
   var state = {
     essential: 30000,
+    essentialOnCard: true,
     bigFreq: 2,
     bigAmount: 100000,
     payment: 10000,
+    fullPayoff: false,
     apr: 15.0,
     years: 5
   };
@@ -47,11 +49,11 @@
     var afterInterest = balance + interest;
     var charge = 0;
     if(buying){
-      charge += state.essential;
+      if(state.essentialOnCard) charge += state.essential;
       if(slots.indexOf(monthOfYear) !== -1) charge += state.bigAmount;
     }
     var due = afterInterest + charge;
-    var payment = Math.min(state.payment, due);
+    var payment = state.fullPayoff ? due : Math.min(state.payment, due);
     var newBalance = Math.max(0, due - payment);
     return {balance:newBalance, interest:interest, charge:charge, payment:payment};
   }
@@ -194,6 +196,21 @@
   bigAmountInput.addEventListener("input", function(){ state.bigAmount = +this.value; paintRange(this); render(); });
   paymentInput.addEventListener("input", function(){ state.payment = +this.value; paintRange(this); render(); });
   aprInput.addEventListener("input", function(){ state.apr = +this.value; paintRange(this); render(); });
+
+  var essentialCashInput = document.getElementById("essentialCash");
+  var fullPayoffInput = document.getElementById("fullPayoff");
+  essentialCashInput.addEventListener("change", function(){
+    state.essentialOnCard = !this.checked;
+    document.getElementById("essentialCashNote").style.display = this.checked ? "flex" : "none";
+    render();
+  });
+  fullPayoffInput.addEventListener("change", function(){
+    state.fullPayoff = this.checked;
+    paymentInput.disabled = this.checked;
+    var pc = paymentInput.closest(".control");
+    if(pc) pc.classList.toggle("disabled", this.checked);
+    render();
+  });
 
   // ---------- chart geometry ----------
   var VB_W = 720, VB_H = 320;
@@ -368,7 +385,7 @@
   function render(){
     document.getElementById("valEssential").textContent = yen(state.essential);
     document.getElementById("valBigAmount").textContent = yen(state.bigAmount);
-    document.getElementById("valPayment").textContent = yen(state.payment);
+    document.getElementById("valPayment").textContent = state.fullPayoff ? "全額（使った分すべて）" : yen(state.payment);
     document.getElementById("valApr").textContent = state.apr.toFixed(1);
 
     var sim = simulate();
@@ -390,7 +407,7 @@
 
     var interestAtFork = sim.forkBalance*sim.monthlyRate;
     var warn = document.getElementById("spiralWarning");
-    if(state.payment <= interestAtFork + 1){
+    if(!state.fullPayoff && state.payment <= interestAtFork + 1){
       warn.classList.add("show");
       document.getElementById("warnBalance").textContent = yen(sim.forkBalance);
       document.getElementById("warnInterest").textContent = yen(interestAtFork);
